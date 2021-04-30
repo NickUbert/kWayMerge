@@ -94,18 +94,18 @@ public class ExternalSorter {
 			// Add current lowest key to output and advance corresponding index
 			if (low == Integer.MIN_VALUE) {
 				// This signals that the end of file was reached and a page wasn't fully filled
-				// update the boolean so that no more pages will be read in.
 				// Update the index value to avoid reading from this column while the rest
 				// finish.
 				index[bIndex] = Integer.MAX_VALUE;
 			} else {
 				index[bIndex]++;
-				// Page Exhausted but there is more to be read
+
 				if (index[bIndex] >= pageSize) {
+					// Page Exhausted but there is more to be read
 					// reset the index counter
 					index[bIndex] = 0;
 					buffers[bIndex] = readNextPage(outFile);
-					// close out access to buffer elements since end of array was reached.
+					// Read next page into the filled buffer
 				}
 			}
 
