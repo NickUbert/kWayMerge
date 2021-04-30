@@ -57,6 +57,7 @@ public class ExternalSorter {
 
 			}
 		} catch (IOException e) {
+			System.out.println("#Error during partial sorting phase");
 			e.printStackTrace();
 		}
 
@@ -140,6 +141,7 @@ public class ExternalSorter {
 				n1 = n2;
 			}
 		} catch (IOException e) {
+			System.out.println("#Error while verifying sorted order in output file");
 			e.printStackTrace();
 		}
 		return true;
@@ -165,6 +167,7 @@ public class ExternalSorter {
 
 			}
 		} catch (IOException e) {
+			System.out.println("#Error while reading input");
 			e.printStackTrace();
 		}
 
@@ -182,6 +185,7 @@ public class ExternalSorter {
 					outFile.writeInt(output[i]);
 					writePointer = outFile.getFilePointer();
 				} catch (IOException e) {
+					System.out.println("#Error while writing output");
 					e.printStackTrace();
 				}
 			}
