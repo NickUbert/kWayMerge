@@ -17,8 +17,10 @@ public class ExternalSorter {
 		// in is the name of an unsorted binary file of ints
 		// out is the name of the output binary file (the destination of the sorted
 		// ints)
-		// numBuffers is the number of in memory page buffers available for sorting
-		// pageSize is the number of ints in a page
+		// nBuffers is the number of in memory page buffers available for sorting
+		// pSize is the number of ints in a page
+
+		// Initialize global variables
 		inFile = new RandomAccessFile(in, "rw");
 		outFile = new RandomAccessFile(out, "rw");
 		outFile.setLength(0);
@@ -29,24 +31,16 @@ public class ExternalSorter {
 		readPointer = 0;
 
 		buffers = new int[numBuffers][pageSize];
+		// Begin by partial sorting the input into (inputSize/pageSize) sorted sequences
 		partialSort();
 
 		while (!outputSorted()) {
-			// Alternative to maintaining two pointers in output file
-			// Copy contents of output to input and restart the process.
-
-			/*
-			 * inFile = new RandomAccessFile(in + "-dup", "rw"); outFile.seek(0); while
-			 * (outFile.getFilePointer() < outFile.length()) {
-			 * inFile.writeInt(outFile.readInt()); } // outFile.setLength(0);
-			 * outFile.seek(0); inFile.seek(0);
-			 */
+			// Repeat merge phase until the number of sorted sequences == 1
 			readPointer = 0;
 			writePointer = 0;
 			for (int i = 0; i < numBuffers - 1; i++) {
 				buffers[i] = readNextPage(outFile);
 			}
-
 			mergePhase();
 		}
 	}
@@ -97,7 +91,6 @@ public class ExternalSorter {
 				}
 			}
 			// Add current lowest key to output and advance corresponding index
-
 			if (low == Integer.MIN_VALUE) {
 				// This signals that the end of file was reached and a page wasn't fully filled
 				// update the boolean so that no more pages will be read in.
@@ -209,7 +202,7 @@ public class ExternalSorter {
 	/*
 	 * 
 	 * All code below this point was taken from a quicksort implementation found on
-	 * GeeksForGeeks.com
+	 * GeeksForGeeks.com, no need to reinvent the wheel.
 	 * 
 	 */
 	static void swap(int[] arr, int i, int j) {
