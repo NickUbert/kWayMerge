@@ -51,11 +51,32 @@ public class ExternalSorter {
 			while (inFile.getFilePointer() < inFile.length()) {
 				for (int i = 0; i < numBuffers; i++) {
 					buffers[i] = readNextPage(inFile);
-					quickSort(buffers[i], 0, pageSize - 1);
-					writeOutput(buffers[i]);
+
 				}
 
 			}
+
+			int count = 0;
+			for (int i = 0; i < numBuffers; i++) {
+				for (int j = 0; j < pageSize; j++) {
+					if (buffers[i][j] != Integer.MIN_VALUE) {
+						count++;
+					}
+				}
+			}
+
+			int[] mixed = new int[count];
+			int mIndex = 0;
+			for (int i = 0; i < numBuffers; i++) {
+				for (int j = 0; j < pageSize; j++) {
+					if (buffers[i][j] != Integer.MIN_VALUE) {
+						mixed[mIndex] = buffers[i][j];
+						mIndex++;
+					}
+				}
+			}
+			quickSort(mixed, 0,count - 1);
+			writeOutput(mixed);
 		} catch (IOException e) {
 			System.out.println("#Error during partial sorting phase");
 			e.printStackTrace();
@@ -64,6 +85,7 @@ public class ExternalSorter {
 	}
 
 	public void mergePhase() {
+		
 		// Pre: Assume buffers has been populated
 		// Assume partial sort has been completed and the buffers contain sorted
 		// sequences.
@@ -97,6 +119,7 @@ public class ExternalSorter {
 				// Update the index value to avoid reading from this column while the rest
 				// finish.
 				index[bIndex] = Integer.MAX_VALUE;
+				
 			} else {
 				index[bIndex]++;
 
@@ -107,19 +130,20 @@ public class ExternalSorter {
 					buffers[bIndex] = readNextPage(outFile);
 					// Read next page into the filled buffer
 				}
+				output[outIndex] = low;
+				outIndex++;
+
+				// If output buffer is full
+				if (outIndex == pageSize) {
+					// Write to file
+					writeOutput(output);
+					// System.out.println(Arrays.toString(output));
+					// Reset output variables
+					outIndex = 0;
+					output = new int[pageSize];
+				}
 			}
 
-			output[outIndex] = low;
-			outIndex++;
-
-			// If output buffer is full
-			if (outIndex == pageSize) {
-				// Write to file
-				writeOutput(output);
-				// Reset output variables
-				outIndex = 0;
-				output = new int[pageSize];
-			}
 		}
 	}
 
